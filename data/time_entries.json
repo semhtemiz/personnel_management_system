@@ -1,0 +1,8 @@
+[ {
+  "id" : "4bfd6280-524e-4b47-b926-fd03b28002fb",
+  "employeeId" : "30",
+  "checkIn" : "2025-02-14T20:38:02.1526206",
+  "checkOut" : "2025-02-14T20:43:33.4137666",
+  "workDuration" : 331.261146000,
+  "overtime" : false
+} ]
