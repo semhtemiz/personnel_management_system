@@ -885,29 +885,42 @@ public class MainFrame extends JFrame {
             }
         };
         
-        JTable table = new JTable(model);
-        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        // Tabloyu sınıf değişkeni olarak ata
+        leaveRequestTable = new JTable(model);
+        panel.add(new JScrollPane(leaveRequestTable), BorderLayout.CENTER);
 
         // onay red butonları
-        JPanel buttonPanel = new JPanel();
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         JButton approveButton = new JButton("Onayla");
         JButton rejectButton = new JButton("Reddet");
+        
+        // Butonlara stil ekle
+        approveButton.setFont(new Font("Arial", Font.BOLD, 12));
+        rejectButton.setFont(new Font("Arial", Font.BOLD, 12));
 
+        // Onaylama butonu işleyicisi
         approveButton.addActionListener(e -> {
-            int selectedRow = table.getSelectedRow();
+            int selectedRow = leaveRequestTable.getSelectedRow();
             if (selectedRow >= 0) {
-                handleLeaveRequestResponse(table, selectedRow, true);
+                handleLeaveRequestResponse(leaveRequestTable, selectedRow, true);
             } else {
-                JOptionPane.showMessageDialog(this, "Lütfen bir izin talebi seçin!");
+                JOptionPane.showMessageDialog(this, 
+                    "Lütfen bir izin talebi seçin!", 
+                    "Uyarı", 
+                    JOptionPane.WARNING_MESSAGE);
             }
         });
 
+        // Reddetme butonu işleyicisi
         rejectButton.addActionListener(e -> {
-            int selectedRow = table.getSelectedRow();
+            int selectedRow = leaveRequestTable.getSelectedRow();
             if (selectedRow >= 0) {
-                handleLeaveRequestResponse(table, selectedRow, false);
+                handleLeaveRequestResponse(leaveRequestTable, selectedRow, false);
             } else {
-                JOptionPane.showMessageDialog(this, "Lütfen bir izin talebi seçin!");
+                JOptionPane.showMessageDialog(this, 
+                    "Lütfen bir izin talebi seçin!", 
+                    "Uyarı", 
+                    JOptionPane.WARNING_MESSAGE);
             }
         });
 
@@ -915,7 +928,9 @@ public class MainFrame extends JFrame {
         buttonPanel.add(rejectButton);
         panel.add(buttonPanel, BorderLayout.SOUTH);
 
+        // Tabloyu ilk verilerle doldur
         refreshLeaveRequestTable(model);
+        
         return panel;
     }
 
@@ -935,9 +950,9 @@ public class MainFrame extends JFrame {
     private void handleLeaveRequestResponse(JTable table, int selectedRow, boolean approved) {
         String id = (String) table.getValueAt(selectedRow, 0);
         String employeeInfo = (String) table.getValueAt(selectedRow, 1);
-        String employeeId = employeeInfo.split(" - ")[0]; // Get employee ID from the formatted string
+        String employeeId = employeeInfo.split(" - ")[0];
         
-        // izin talebini bul
+        // İzin talebini bul
         List<LeaveRequest> requests = dataService.getAllLeaveRequests();
         LeaveRequest request = requests.stream()
                 .filter(r -> r.getId().equals(id))
@@ -945,40 +960,49 @@ public class MainFrame extends JFrame {
                 .orElse(null);
 
         if (request != null) {
-            // yönetici notunu al
+            // Yönetici notunu al
             String notes = JOptionPane.showInputDialog(this,
-                    "Notlar:",
+                    "Notlar (İsteğe bağlı):",
                     approved ? "İzin Onaylama" : "İzin Reddetme",
                     JOptionPane.PLAIN_MESSAGE);
 
-            // talep durumunu güncelle
+            // Talep durumunu güncelle
             request.setStatus(approved ? LeaveRequest.LeaveStatus.APPROVED : 
                                       LeaveRequest.LeaveStatus.REJECTED);
             request.setApproverNotes(notes);
-            dataService.updateLeaveRequest(request);
 
-            // onaylanırsa izin günlerini güncelle
+            // Onaylanırsa izin günlerini kontrol et ve güncelle
             if (approved) {
                 Employee employee = dataService.getEmployeeById(employeeId);
                 if (employee != null) {
                     int duration = request.getDurationInDays();
-                    int remainingDays = employee.getVacationDays() - duration;
-                    if (remainingDays < 0) {
+                    int usedDays = dataService.getUsedLeaveDays(employeeId, LocalDate.now().getYear());
+                    int remainingDays = employee.getVacationDays() - usedDays;
+
+                    if (duration > remainingDays) {
                         JOptionPane.showMessageDialog(this,
-                            "Uyarı: Personelin yeterli izin günü bulunmamaktadır!",
-                            "Uyarı",
+                            "Uyarı: Personelin yeterli izin günü bulunmamaktadır!\n" +
+                            "Kalan İzin: " + remainingDays + " gün\n" +
+                            "Talep Edilen: " + duration + " gün",
+                            "İzin Onaylanamadı",
                             JOptionPane.WARNING_MESSAGE);
                         request.setStatus(LeaveRequest.LeaveStatus.REJECTED);
-                        request.setApproverNotes("Yetersiz izin günü");
-                        dataService.updateLeaveRequest(request);
-                    } else {
-                        employee.setVacationDays(remainingDays);
-                        dataService.updateEmployee(employee);
+                        request.setApproverNotes("Yetersiz izin günü (Kalan: " + remainingDays + " gün)");
                     }
                 }
             }
 
+            // Değişiklikleri kaydet
+            dataService.updateLeaveRequest(request);
+            
+            // Tabloyu güncelle
             refreshLeaveRequestTable((DefaultTableModel) table.getModel());
+            
+            // İşlem sonucu mesajı göster
+            JOptionPane.showMessageDialog(this,
+                "İzin talebi " + (approved ? "onaylandı" : "reddedildi") + ".",
+                "İşlem Tamamlandı",
+                JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -1161,17 +1185,18 @@ public class MainFrame extends JFrame {
      */
     private void refreshLeaveRequestTable(DefaultTableModel model) {
         model.setRowCount(0);
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         
         List<LeaveRequest> requests = dataService.getAllLeaveRequests();
         for (LeaveRequest request : requests) {
             Employee employee = dataService.getEmployeeById(request.getEmployeeId());
-            String employeeInfo = employee != null ? 
-                String.format("%s %s", employee.getFirstName(), employee.getLastName()) :
-                "Bilinmeyen Personel";
+            String employeeInfo = request.getEmployeeId() + " - " + 
+                (employee != null ? 
+                    String.format("%s %s", employee.getFirstName(), employee.getLastName()) :
+                    "Bilinmeyen Personel");
             
             model.addRow(new Object[]{
-                request.getEmployeeId(),
+                request.getId(),
                 employeeInfo,
                 request.getStartDate().format(dateFormatter),
                 request.getEndDate().format(dateFormatter),
@@ -1195,7 +1220,7 @@ public class MainFrame extends JFrame {
      */
     private void refreshEmployeeLeaveRequestTable(DefaultTableModel model) {
         model.setRowCount(0);
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         
         List<LeaveRequest> requests = dataService.getLeaveRequestsByEmployeeId(currentUser.getId());
         for (LeaveRequest request : requests) {
