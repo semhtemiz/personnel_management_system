@@ -1,0 +1,138 @@
+# IDE specific files
+.idea/
+.vscode/
+*.code-workspace
+*.iml
+*.iws
+.settings/
+.classpath
+.project
+
+# Compiled files
+*.class
+*.pyc
+__pycache__/
+
+# Logs and databases
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.sqlite
+
+# Dependencies
+node_modules/
+vendor/
+target/
+.gradle/
+
+# Build outputs
+/dist
+/build
+/out
+!gradle-wrapper.jar
+
+# Environment and config files
+.env*
+*.properties
+*.yml
+!application-example.properties
+!application-example.yml
+
+# Cache and temporary files
+.cache/
+.temp/
+.npm
+.eslintcache
+.node_repl_history
+
+# Package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*.tgz
+
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+# Test and coverage
+/coverage
+test-output/
+*.test
+
+# Application specific
+data/
+logs/
+
+# Maven specific
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Virtual machine crash logs
+hs_err_pid*
+replay_pid*
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Gradle
+.gradle/
+build/
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Eclipse
+.settings/
+.classpath
+.project
+.factorypath
+bin/
+
+# VS Code
+.vscode/
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Project specific
+/logs/
+/temp/ 
