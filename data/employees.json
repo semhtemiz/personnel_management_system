@@ -15,21 +15,4 @@
   "password" : "admin",
   "role" : "ADMIN",
   "fullName" : "System Admin"
-}, {
-  "id" : "30",
-  "firstName" : "semih",
-  "lastName" : "temiz",
-  "tcNo" : "11111111111",
-  "department" : "Yazılım Geliştirme",
-  "position" : "abap developer",
-  "email" : "semhtemiz@gmail.com",
-  "phone" : "0500 000 00 00",
-  "salary" : 61000.0,
-  "hourlyRate" : 363.0952380952381,
-  "startDate" : "2025-02-14",
-  "vacationDays" : 30,
-  "username" : "semhtemiz",
-  "password" : "semih123",
-  "role" : "EMPLOYEE",
-  "fullName" : "semih temiz"
 } ]
