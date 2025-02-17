@@ -218,7 +218,7 @@ personnel_management_system/
 
 ### 🎥 **YouTube**  
 
-👀 Detaylı bir inceleme ve ilk izlenim için **YouTube** videoma [buradan](link) erişebilirsiniz.
+👀 Detaylı bir inceleme ve ilk izlenim için **YouTube** videoma [buradan](https://youtu.be/k2qjKHQSETk) erişebilirsiniz.
 
 ---
 
